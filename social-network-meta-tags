@@ -38,14 +38,14 @@ function social_meta() {
             $featured_img = wp_get_attachment_image_src(get_post_thumbnail_id( $post->ID ), 'medium');
 	    $img_src = $featured_img[0];
         } else {
-            $img_src = get_stylesheet_directory_uri() . '/uploads/sites/2/2017/06/annienymotee_ufw_logo_black.png';
+            $img_src = get_stylesheet_directory_uri() . '/uploads/sites/2/2017/06/your-custom-logo.jpg';
         }
-	  $my_url = network_site_url();
+    $my_url = network_site_url();
     //UNLESS YOU'RE MANUALLY ENTERING EXCERPT CONTENT THE EXCERPT MUST ORIGINATE FROM THE POST CONTENT
-    $excerpt = $post->post_content;
+    $excerpt = strip_tags($post->post_content);
     //IMPORTANT - THIS STRIPS OUT ANY SHORTCODES AND ALL HTML TAGS
-	  $excerpt = preg_replace('/(\[(.*)\]|[[:cntrl:]])/', '', $excerpt);
-	  $charlength = 140;
+    $excerpt = preg_replace('/(\[(.*)\]|[[:cntrl:]])/', '', $excerpt);
+    $charlength = 140;
       if ( mb_strlen( $excerpt ) > $charlength ) {
         $subex = mb_substr( $excerpt, 0, $charlength - 5 );
         $exwords = explode( ' ', $subex );
@@ -58,15 +58,15 @@ function social_meta() {
 	    $excerpt = $my_url . ' ... read more ';
 	  }
 
-    $date = get_the_date( 'Y-m-d' );
-	  $author = get_the_author_meta( 'display_name', $post->post_author );
+    $date = get_the_date( 'm-d-Y' );
+    $author = get_the_author_meta( 'display_name', $post->post_author );
     //GET THE TAGS FOR THE SPECIFIC POST
     $slugs = wp_get_post_tags( $post->ID, array( 'fields' => 'slugs' ) );
-	  $tags = implode(', ', $slugs);
+    $tags = implode(', ', $slugs);
     $facebook_url = get_the_author_meta('facebook', $post->post_author);
-	  $facebook_admin = get_the_author_meta('fb_admin', $post->post_author);
+    $facebook_admin = get_the_author_meta('fb_admin', $post->post_author);
     $facebook_page_id = get_the_author_meta('fb_page_id', $post->post_author);
-	  $twitter_user = get_the_author_meta('twitter', $post->post_author);
+    $twitter_user = get_the_author_meta('twitter', $post->post_author);
     $twitter_id = get_the_author_meta('twitter_id', $post->post_author);
     $google_url = get_the_author_meta('gplus', $post->post_author);
 
