@@ -1,7 +1,8 @@
 //ADD ALL OF THIS TO YOUR FUNCTIONS.PHP FILE
 //THIS WORKS FOR BOTH SINGLE INSTALL AND MULTISITE INSTALLS
 
-function get_first_image( $postID ) {
+//THIS FUNCTION IS USED WHEN YOU CHOOSE NOT TO USE A FEATURED IMAGE
+function get_image( $postID ) {
     $args = array(
       'numberposts' => 1,
       'order' => 'ASC',
@@ -12,7 +13,9 @@ function get_first_image( $postID ) {
     );
 
     $attachments = get_children( $args );
-
+    //WORDPRESS RECOMMENDED A FAR MORE COMPLEX APPROACH FOR IMAGE ATTACHMENTS
+    //MY SOLUTION PRODUCES AN ARRAY THAT CONTAINS ALL METADATA FOR YOUR IMAGES
+    //THIS IS MUCH EASIER TO CUSTOMIZE FOR ANY PAGE OR POST
     if ( $attachments ) {
       foreach ( $attachments as $attachment ) {
         $image_attributes = wp_get_attachment_metadata( $attachment->ID );
@@ -57,12 +60,12 @@ function social_meta() {
       if(has_post_thumbnail($post->ID)) {
         $featured_img = wp_get_attachment_metadata(get_post_thumbnail_id( $post->ID ));
         //THIS IMAGE SRC CODE IS SETUP FOR MULTISITE AS IS - IF YOU WANT THIS SETUP FOR SINGLE SITE USE
-        //$img_src = get_site_url() . '/wp-content/uploads/' . '/' . $featured_img['file'];
+        //$img_src = get_site_url() . '/wp-content/uploads/' . $featured_img['file'];
         $img_src = get_site_url() . '/wp-content/uploads/sites/' . get_current_blog_id() . '/' . $featured_img['file'];
         $img_width = $featured_img['width'];
         $img_height = $featured_img['height'];
         } else {
-        $img_atts = get_first_image( $post->ID );
+        $img_atts = get_image( $post->ID );
         $img_src = get_site_url() . '/wp-content/uploads/sites/' . get_current_blog_id() . '/' . $img_atts['file'];
           $img_width = $img_atts['width'];
           $img_height = $img_atts['height'];
@@ -161,7 +164,7 @@ function social_meta() {
 
 <?php
     } else {
-      return;
+      return; //IF EVERYTHING FAILS DISPLAY PAGE AS IS
     }
 }
 add_action('wp_head', 'social_meta', 5);
