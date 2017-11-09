@@ -2,46 +2,46 @@
 //THIS WORKS FOR BOTH SINGLE INSTALL AND MULTISITE INSTALLS
 
 function get_first_image( $postID ) {
-	$args = array(
-		'numberposts' => 1,
-		'order' => 'ASC',
-		'post_mime_type' => 'image',
-		'post_parent' => $postID,
-		'post_status' => null,
-		'post_type' => 'attachment',
-	);
+    $args = array(
+      'numberposts' => 1,
+      'order' => 'ASC',
+      'post_mime_type' => 'image',
+      'post_parent' => $postID,
+      'post_status' => null,
+      'post_type' => 'attachment',
+    );
 
-	$attachments = get_children( $args );
+    $attachments = get_children( $args );
 
-	if ( $attachments ) {
-		foreach ( $attachments as $attachment ) {
-			$image_attributes = wp_get_attachment_metadata( $attachment->ID );
-            return $image_attributes;
-		}
-	}
+    if ( $attachments ) {
+      foreach ( $attachments as $attachment ) {
+        $image_attributes = wp_get_attachment_metadata( $attachment->ID );
+        return $image_attributes;
+      }
+    }
 }
 
 //ADD USER PROFILE FIELDS TO USERS ACCOUNT MENU
 function add_contact_methods($profile_fields) {
 
-  // Add new fields
-  $profile_fields['twitter'] = 'Twitter Username';
-  $profile_fields['twitter_id'] = 'Twitter ID';
-  $profile_fields['facebook'] = 'Facebook URL';
-  $profile_fields['fb_page_id'] = 'Facebook Page ID';
-  $profile_fields['fb_admin'] = 'Facebook Admin';
-  $profile_fields['gplus'] = 'Google+ URL';
-  $profile_fields['pin_confirm'] = 'Pinterest Confirm';
+    // Add new fields
+    $profile_fields['twitter'] = 'Twitter Username';
+    $profile_fields['twitter_id'] = 'Twitter ID';
+    $profile_fields['facebook'] = 'Facebook URL';
+    $profile_fields['fb_page_id'] = 'Facebook Page ID';
+    $profile_fields['fb_admin'] = 'Facebook Admin';
+    $profile_fields['gplus'] = 'Google+ URL';
+    $profile_fields['pin_confirm'] = 'Pinterest Confirm';
 
-  // Remove old fields
-  //unset($profile_fields['aim']);
+    // Remove old fields
+    //unset($profile_fields['aim']);
 
-  return $profile_fields;
+    return $profile_fields;
 }
-//To extract this data use "get_the_author_meta('twitter');"
+//TO EXTRACT THIS DATA USE "get_the_author_meta('twitter');"
 add_filter('user_contactmethods', 'add_contact_methods');
 
-//Adding the Open Graph in the Language Attributes
+//ADDING THE OPEN GRAPH IN THE LANGUAGE ATTRIBUTES
 function doctype_opengraph($output) {
     return $output . '
     xmlns:og="http://opengraphprotocol.org/schema/"
@@ -49,21 +49,21 @@ function doctype_opengraph($output) {
 }
 add_filter('language_attributes', 'doctype_opengraph');
 
-//Add Open Graph Meta Info
+//ADD OPEN GRAPH META INFO
 function social_meta() {
     global $post;
- 
+
     if( is_single() || is_page() || is_home() ) {
       if(has_post_thumbnail($post->ID)) {
         $featured_img = wp_get_attachment_metadata(get_post_thumbnail_id( $post->ID ));
-	    $img_src = get_site_url() . '/wp-content/uploads/sites/' . get_current_blog_id() . '/' . $featured_img['file'];
-		$img_width = $featured_img['width'];
-		$img_height = $featured_img['height'];
+        $img_src = get_site_url() . '/wp-content/uploads/sites/' . get_current_blog_id() . '/' . $featured_img['file'];
+        $img_width = $featured_img['width'];
+        $img_height = $featured_img['height'];
         } else {
-	$img_atts = get_first_image( $post->ID );
+        $img_atts = get_first_image( $post->ID );
         $img_src = get_site_url() . '/wp-content/uploads/sites/' . get_current_blog_id() . '/' . $img_atts['file'];
-		$img_width = $img_atts['width'];
-		$img_height = $img_atts['height'];
+          $img_width = $img_atts['width'];
+          $img_height = $img_atts['height'];
       }
       if( has_shortcode( $post->post_content, 'gallery' ) && ( $img_atts['file'] == NULL ) ) {
         unset($img_src); unset($img_width); unset($img_height);
