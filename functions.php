@@ -56,6 +56,8 @@ function social_meta() {
     if( is_single() || is_page() || is_home() ) {
       if(has_post_thumbnail($post->ID)) {
         $featured_img = wp_get_attachment_metadata(get_post_thumbnail_id( $post->ID ));
+        //THIS IMAGE SRC CODE IS SETUP FOR MULTISITE AS IS - IF YOU WANT THIS SETUP FOR SINGLE SITE USE
+        //$img_src = get_site_url() . '/wp-content/uploads/' . '/' . $featured_img['file'];
         $img_src = get_site_url() . '/wp-content/uploads/sites/' . get_current_blog_id() . '/' . $featured_img['file'];
         $img_width = $featured_img['width'];
         $img_height = $featured_img['height'];
