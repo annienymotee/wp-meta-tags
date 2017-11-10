@@ -1,18 +1,19 @@
 //ADD ALL OF THIS TO YOUR FUNCTIONS.PHP FILE
 //THIS WORKS FOR BOTH SINGLE INSTALL AND MULTISITE INSTALLS
 
-//THIS FUNCTION IS USED WHEN YOU CHOOSE NOT TO USE A FEATURED IMAGE
+//THIS FUNCTION GRABS ALL IMAGES INCLUDING THE FEATURED IMAGE
 function get_image( $postID ) {
     $args = array(
-      'numberposts' => 1,
+      'numberposts' => -1,
       'order' => 'ASC',
       'post_mime_type' => 'image',
-      'post_parent' => $postID,
-      'post_status' => null,
+      'post_parent' => $post->ID,
+      'post_status' => 'any',
       'post_type' => 'attachment',
+      'include' => get_post_thumbnail_id(),
     );
 
-    $attachments = get_children( $args );
+    $attachments = get_posts( $args );
     //WORDPRESS RECOMMENDED A FAR MORE COMPLEX APPROACH FOR IMAGE ATTACHMENTS
     //MY SOLUTION PRODUCES AN ARRAY THAT CONTAINS ALL METADATA FOR YOUR IMAGES
     //THIS IS MUCH EASIER TO CUSTOMIZE FOR ANY PAGE OR POST
@@ -56,32 +57,38 @@ add_filter('language_attributes', 'doctype_opengraph');
 function social_meta() {
     global $post;
 
+    $primary_img_url = get_site_url() . '/wp-content/uploads/';
+    $subsite_img_url = get_site_url() . '/wp-content/uploads/sites/' . get_current_blog_id() . '/';
+    $single_img_url = site_url() . '/wp-content/uploads/';
+    $img_atts = get_image( $post->ID );
+
     if( is_single() || is_page() || is_home() ) {
-      if(has_post_thumbnail($post->ID)) {
-        $featured_img = wp_get_attachment_metadata(get_post_thumbnail_id( $post->ID ));
-        //THIS IMAGE SRC CODE IS SETUP FOR MULTISITE AS IS - IF YOU WANT THIS SETUP FOR SINGLE SITE USE
-        //$img_src = get_site_url() . '/wp-content/uploads/' . $featured_img['file'];
-        $img_src = get_site_url() . '/wp-content/uploads/sites/' . get_current_blog_id() . '/' . $featured_img['file'];
-        $img_width = $featured_img['width'];
-        $img_height = $featured_img['height'];
-        } else {
-        $img_atts = get_image( $post->ID );
-        $img_src = get_site_url() . '/wp-content/uploads/sites/' . get_current_blog_id() . '/' . $img_atts['file'];
-          $img_width = $img_atts['width'];
-          $img_height = $img_atts['height'];
-      }
-      if( has_shortcode( $post->post_content, 'gallery' ) && ( $img_atts['file'] == NULL ) ) {
+      $img_src = $single_img_url . $img_atts['file'];
+        if ( is_multisite() && get_current_blog_id() === 1 ) {
+          unset($img_src);
+          $img_src = $primary_img_url . $img_atts['file'];
+          } else {
+          $img_src = $subsite_img_url . $img_atts['file'];
+        }
+      $img_width = $img_atts['width'];
+      $img_height = $img_atts['height'];
+      //IF GALLERY IS FOUND USE GALLERY IMAGE ARRAY
+      if( has_shortcode( $post->post_content, 'gallery' ) ) {
         unset($img_src); unset($img_width); unset($img_height);
         $img_post_id[] = preg_match_all( '/ids=([\'"])(.+?)\1/', ($post->post_content), $img_post_id );
         $img_ids = explode(',', $img_post_id[2][0]);
         foreach ( $img_ids as $img_id ) {
-          $gallery_img  = wp_get_attachment_metadata( $img_id );
+          $gallery_img = wp_get_attachment_metadata( $img_id );
           $img_width = $gallery_img['width'];
           $img_height = $gallery_img['height'];
-          $img_src[] = get_site_url() . '/wp-content/uploads/sites/' . get_current_blog_id() . '/' . $gallery_img['file'];
+          $img_src[] = $single_img_url . $gallery_img['file'];
+          if ( is_multisite() && get_current_blog_id() === 1 ) {
+            $img_src[] = $primary_img_url . $gallery_img['file'];
+            } else {
+            $img_src[] = $subsite_img_url . $gallery_img['file'];
+          }
         }
-      }
-
+    }
 	$my_url = site_url();
 	$content = preg_replace("/<h([1-6]{1})>.*?<\/h\\1>/si", '', ($post->post_content));
 	$excerpt = strip_tags($content);
